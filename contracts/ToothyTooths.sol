@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
+contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
     using ECDSA for bytes32;
     using Strings for uint256;
@@ -24,9 +24,9 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     uint256 public whitelistmTL = 20;
     uint256 public tokenPrice = 0.07 ether;
     uint256 public whitelistTokenPrice = 0.055 ether;
-    uint256 public maxAfterHoursMonsterMints = 6000;
+    uint256 public maxAfterHoursMissingToothMints = 6000;
 
-    bool public publicMintIsOpen  = false;
+    bool public publicMintIsOpen = false;
     bool public privateMintIsOpen = true;
     bool public revealed = false;
 
@@ -34,7 +34,8 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     string public baseExtension = ".json";
     string public hiddenMetadataUri;
 
-    address private _MonsterVault = 0x0000000000000000000000000000000000000000;
+    address private _MissingToothVault =
+        0x0000000000000000000000000000000000000000;
 
     mapping(address => bool) whitelistedAddresses;
 
@@ -59,8 +60,8 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
         address _vault,
         string memory __baseTokenURI,
         string memory _hiddenMetadataUri
-    ) ERC721("SuitsOnSuits NFT", "SOS") {
-        _MonsterVault = _vault;
+    ) ERC721("ToothyTooths NFT", "SOS") {
+        _MissingToothVault = _vault;
         _tokenSupply.increment();
         _safeMint(msg.sender, 0);
         _baseTokenURI = __baseTokenURI;
@@ -68,21 +69,18 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     }
 
     function withdraw() external onlyOwner {
-        payable(_MonsterVault).transfer(address(this).balance);
+        payable(_MissingToothVault).transfer(address(this).balance);
     }
 
-    function afterHoursMonsterMint(        
-        bytes32 mThree,        
-        uint256 amount
-    )
+    function afterHoursMissingToothMint(bytes32 mThree, uint256 amount)
         external
-        payable     
+        payable
         isWhitelisted(msg.sender, mThree)
     {
         uint256 supply = _tokenSupply.current();
 
         require(
-            supply + amount < maxAfterHoursMonsterMints,
+            supply + amount < maxAfterHoursMissingToothMints,
             "Not enough free mints remaining"
         );
         require(
@@ -97,10 +95,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
         }
     }
 
-    function openMonsterMint(       
-        bytes32 mThree,        
-        uint256 quantity
-    )
+    function openMissingToothMint(bytes32 mThree, uint256 quantity)
         external
         payable
         isWhitelisted(msg.sender, mThree)
@@ -117,7 +112,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
         }
     }
 
-    function monsterMint(address to, uint256 amount) external onlyOwner {
+    function missingToothMint(address to, uint256 amount) external onlyOwner {
         uint256 supply = _tokenSupply.current();
         require(supply + amount < MAX_TOKENS, "Not enough tokens remaining");
         for (uint256 i = 0; i < amount; i++) {
@@ -129,15 +124,15 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     function setParams(
         uint256 newPrice,
         uint256 newWhitelistTokenPrice,
-        uint256 setopenMonsterMintLimit,
-        uint256 setafterHoursMonsterMintLimit,
+        uint256 setopenMissingToothMintLimit,
+        uint256 setafterHoursMissingToothMintLimit,
         bool setPublicMintState,
         bool setPrivateMintState
     ) external onlyOwner {
         whitelistTokenPrice = newWhitelistTokenPrice;
         tokenPrice = newPrice;
-        mTL = setopenMonsterMintLimit;
-        whitelistmTL = setafterHoursMonsterMintLimit;
+        mTL = setopenMissingToothMintLimit;
+        whitelistmTL = setafterHoursMissingToothMintLimit;
         publicMintIsOpen = setPublicMintState;
         privateMintIsOpen = setPrivateMintState;
     }
@@ -159,7 +154,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
 
     function setFreeMints(uint256 amount) external onlyOwner {
         require(amount <= MAX_TOKENS, "Free mint amount too large");
-        maxAfterHoursMonsterMints = amount;
+        maxAfterHoursMissingToothMints = amount;
     }
 
     function toggleCooking() external onlyOwner {
@@ -179,7 +174,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     }
 
     function setVaultAddress(address newVault) external onlyOwner {
-        _MonsterVault = newVault;
+        _MissingToothVault = newVault;
     }
 
     function _baseURI() internal view override returns (string memory) {

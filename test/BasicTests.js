@@ -10,7 +10,7 @@ let messageHash1 = ethers.utils.solidityKeccak256(['string'], [message1]);
 let messageHash2 = ethers.utils.solidityKeccak256(['string'], [message2]);
 
 if (true == true)
-    describe("SuitsOnSuits", function () {
+    describe("ToothyTooths", function () {
         let buyer, owner, hashValue;
         before(async () => {
             const [owner, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
@@ -19,7 +19,7 @@ if (true == true)
             let ethBalance = ethers.utils.formatEther(await ethers.provider.getBalance(owner.address));
             console.log("Start Balance: " + ethBalance);
 
-            const MonstersCommunity = await ethers.getContractFactory("SuitsOnSuits");
+            const MonstersCommunity = await ethers.getContractFactory("ToothyTooths");
             currentToken = await MonstersCommunity.deploy(
                 '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
                 'https://techoshiprojects.s3.amazonaws.com/MonstersCommunity/images/',

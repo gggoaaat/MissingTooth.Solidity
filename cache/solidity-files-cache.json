@@ -1,10 +1,10 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "C:\\Users\\joser\\OneDrive\\Documents\\GitHub\\Monsters.Solidity\\Monsters.Solidity\\contracts\\SuitsOnSuits.sol": {
+    "C:\\Users\\joser\\OneDrive\\Documents\\GitHub\\Monsters.Solidity\\Monsters.Solidity\\contracts\\ToothyTooths.sol": {
       "lastModificationDate": 1648184292827,
       "contentHash": "5c9183780e25b3c3134f4d5c4fd52090",
-      "sourceName": "contracts/SuitsOnSuits.sol",
+      "sourceName": "contracts/ToothyTooths.sol",
       "solcConfig": {
         "version": "0.8.11",
         "settings": {
@@ -39,7 +39,7 @@
         "^0.8.11"
       ],
       "artifacts": [
-        "SuitsOnSuits"
+        "ToothyTooths"
       ]
     },
     "C:\\Users\\joser\\OneDrive\\Documents\\GitHub\\Monsters.Solidity\\Monsters.Solidity\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {

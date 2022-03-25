@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "SuitsOnSuits",
-  "sourceName": "contracts/SuitsOnSuits.sol",
+  "contractName": "ToothyTooths",
+  "sourceName": "contracts/ToothyTooths.sol",
   "abi": [
     {
       "inputs": [
