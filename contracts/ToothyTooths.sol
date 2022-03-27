@@ -19,27 +19,49 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
 
     Counters.Counter private _tokenSupply;
 
-    uint256 public constant MAX_TOKENS = 3333;
+    uint256 public constant MAX_TOKENS = 8888;
     uint256 public mTL = 20;
     uint256 public whitelistmTL = 20;
     uint256 public tokenPrice = 0.07 ether;
     uint256 public whitelistTokenPrice = 0.055 ether;
-    uint256 public maxAfterHoursMissingToothMints = 6000;
+    uint256 public maxWhiteListMints = 6000;
 
-    bool public publicMintIsOpen = false;
-    bool public privateMintIsOpen = true;
+    bool public publicMintIsOpen  = false;
+    bool public whitelistMintIsOpen = true;
     bool public revealed = false;
 
     string _baseTokenURI;
     string public baseExtension = ".json";
     string public hiddenMetadataUri;
 
-    address private _MissingToothVault =
-        0x0000000000000000000000000000000000000000;
+    address private _Uno = 0x0000000000000000000000000000000000000000;
+    address private _Duece = 0x0000000000000000000000000000000000000000;
+    address private _Vault = 0x0000000000000000000000000000000000000000;
 
     mapping(address => bool) whitelistedAddresses;
 
-    modifier isWhitelisted(address _address, bytes32 _hash) {
+    modifier publicMissingToothCompliance(
+        bool flip,
+        bytes32 hash,
+        bytes memory signature,
+        bytes32 hash2,
+        bytes memory signature2
+    ) {
+        require(publicMintIsOpen, "Kitchen is not open");
+
+        require(
+            matchMessage(
+                flip,
+                flip ? hash : hash2,
+                flip ? signature : signature2
+            ),
+            "Direct mint now allowed"
+        );
+
+        _;
+    }
+
+    modifier isGuest(address _address, bytes32 _hash) {
         bool decoy = keccak256(abi.encodePacked("<(^_^)>")) !=
             keccak256(
                 abi.encodePacked(
@@ -56,12 +78,36 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
         _;
     }
 
+    modifier whitelistMissingToothCompliance(
+        bool flip,
+        bytes32 hash,
+        bytes memory signature,
+        bytes32 hash2,
+        bytes memory signature2
+    ) {
+        require(whitelistMintIsOpen, "WTForks Pre-Sale is not Open");
+
+        require(
+            matchMessage(
+                flip,
+                flip ? hash : hash2,
+                flip ? signature : signature2
+            ),
+            "Direct mint now allowed"
+        );
+        _;
+    }
+
     constructor(
+        address firstAddy,
+        address secondAddy,
         address _vault,
         string memory __baseTokenURI,
         string memory _hiddenMetadataUri
-    ) ERC721("ToothyTooths NFT", "SOS") {
-        _MissingToothVault = _vault;
+    ) ERC721("ToothyTooths", "SOS") {
+        _Vault = _vault;
+        _Uno = firstAddy;
+        _Duece = secondAddy;
         _tokenSupply.increment();
         _safeMint(msg.sender, 0);
         _baseTokenURI = __baseTokenURI;
@@ -69,18 +115,27 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     }
 
     function withdraw() external onlyOwner {
-        payable(_MissingToothVault).transfer(address(this).balance);
+        payable(_Vault).transfer(address(this).balance);
     }
 
-    function afterHoursMissingToothMint(bytes32 mThree, uint256 amount)
+    function whitelistMissingToothMint(
+        bool mH,
+        bytes32 mOne,
+        bytes memory mTwo,
+        bytes32 mThree,
+        bytes32 mFour,
+        bytes memory mFive,
+        uint256 amount
+    )
         external
         payable
-        isWhitelisted(msg.sender, mThree)
+        whitelistMissingToothCompliance(mH, mOne, mTwo, mFour, mFive)        
+        isGuest(msg.sender, mThree)
     {
         uint256 supply = _tokenSupply.current();
 
         require(
-            supply + amount < maxAfterHoursMissingToothMints,
+            supply + amount < maxWhiteListMints,
             "Not enough free mints remaining"
         );
         require(
@@ -95,24 +150,33 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
         }
     }
 
-    function openMissingToothMint(bytes32 mThree, uint256 quantity)
+    function publicMissingToothMint(
+        bool mH,
+        bytes32 mOne,
+        bytes memory mTwo,
+        bytes32 mThree,
+        bytes32 mFour,
+        bytes memory mFive,
+        uint256 a
+    )
         external
         payable
-        isWhitelisted(msg.sender, mThree)
+        publicMissingToothCompliance(mH, mOne, mTwo, mFour, mFive)
+        isGuest(msg.sender, mThree)
     {
         uint256 supply = _tokenSupply.current();
 
-        require(quantity <= mTL, "Mint amount too large");
-        require(supply + quantity < MAX_TOKENS, "Not enough tokens remaining");
-        require(tokenPrice * quantity <= msg.value, "Not enough ether sent");
+        require(a <= mTL, "Mint amount too large");
+        require(supply + a < MAX_TOKENS, "Not enough tokens remaining");
+        require(tokenPrice * a <= msg.value, "Not enough ether sent");
 
-        for (uint256 i = 0; i < quantity; i++) {
+        for (uint256 i = 0; i < a; i++) {
             _tokenSupply.increment();
             _safeMint(msg.sender, supply + i);
         }
     }
 
-    function missingToothMint(address to, uint256 amount) external onlyOwner {
+    function adminMint(address to, uint256 amount) external onlyOwner {
         uint256 supply = _tokenSupply.current();
         require(supply + amount < MAX_TOKENS, "Not enough tokens remaining");
         for (uint256 i = 0; i < amount; i++) {
@@ -124,28 +188,28 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     function setParams(
         uint256 newPrice,
         uint256 newWhitelistTokenPrice,
-        uint256 setopenMissingToothMintLimit,
-        uint256 setafterHoursMissingToothMintLimit,
+        uint256 setpublicMissingToothMintLimit,
+        uint256 setwhitelistMissingToothMintLimit,
         bool setPublicMintState,
-        bool setPrivateMintState
+        bool setWhitelistMintState
     ) external onlyOwner {
         whitelistTokenPrice = newWhitelistTokenPrice;
         tokenPrice = newPrice;
-        mTL = setopenMissingToothMintLimit;
-        whitelistmTL = setafterHoursMissingToothMintLimit;
+        mTL = setpublicMissingToothMintLimit;
+        whitelistmTL = setwhitelistMissingToothMintLimit;
         publicMintIsOpen = setPublicMintState;
-        privateMintIsOpen = setPrivateMintState;
+        whitelistMintIsOpen = setWhitelistMintState;
     }
 
     function setTransactionMintLimit(uint256 newMintLimit) external onlyOwner {
         mTL = newMintLimit;
     }
 
-    function setWhitelistTransactionMintLimit(uint256 newprivateMintLimit)
+    function setWhitelistTransactionMintLimit(uint256 newprivateBanquetLimit)
         external
         onlyOwner
     {
-        whitelistmTL = newprivateMintLimit;
+        whitelistmTL = newprivateBanquetLimit;
     }
 
     function setTokenPrice(uint256 newPrice) external onlyOwner {
@@ -154,15 +218,15 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
 
     function setFreeMints(uint256 amount) external onlyOwner {
         require(amount <= MAX_TOKENS, "Free mint amount too large");
-        maxAfterHoursMissingToothMints = amount;
+        maxWhiteListMints = amount;
     }
 
-    function toggleCooking() external onlyOwner {
+    function togglePublicMint() external onlyOwner {
         publicMintIsOpen = !publicMintIsOpen;
     }
 
-    function togglePresaleCooking() external onlyOwner {
-        privateMintIsOpen = !privateMintIsOpen;
+    function toggleWhitelistMint() external onlyOwner {
+        whitelistMintIsOpen = !whitelistMintIsOpen;
     }
 
     function totalSupply() public view returns (uint256) {
@@ -174,7 +238,15 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     }
 
     function setVaultAddress(address newVault) external onlyOwner {
-        _MissingToothVault = newVault;
+        _Vault = newVault;
+    }
+
+    function setSignerAddress(address newSigner, address newSigner2)
+        external
+        onlyOwner
+    {
+        _Uno = newSigner;
+        _Duece = newSigner2;
     }
 
     function _baseURI() internal view override returns (string memory) {
@@ -182,6 +254,21 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     }
 
     receive() external payable {}
+
+    function matchMessage(
+        bool flip,
+        bytes32 hash,
+        bytes memory signature
+    ) private view returns (bool) {
+        address hashAddy = hash.toEthSignedMessageHash().recover(signature);
+
+        bool firstCheck = (flip && address(_Uno) == address(hashAddy));
+        bool secondCheck = (!flip && address(_Duece) == address(hashAddy));
+
+        bool returnResult = flip ? firstCheck : secondCheck;
+
+        return returnResult;
+    }
 
     function setBaseExtension(string memory _baseExtension) public onlyOwner {
         baseExtension = _baseExtension;
