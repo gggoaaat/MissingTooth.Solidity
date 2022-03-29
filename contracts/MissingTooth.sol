@@ -12,25 +12,27 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
+contract MissingTooth is Ownable, ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
     using ECDSA for bytes32;
     using Strings for uint256;
 
     Counters.Counter private _tokenSupply;
 
-    uint256 public constant MAX_TOKENS = 8888;
+    uint256 public constant MAX_TOKENS = 500;
     uint256 public mTL = 20;
     uint256 public whitelistmTL = 20;
-    uint256 public tokenPrice = 0.07 ether;
-    uint256 public whitelistTokenPrice = 0.055 ether;
-    uint256 public maxWhiteListMints = 6000;
+    uint256 public tokenPrice = 0.045 ether;
+    uint256 public whitelistTokenPrice = 0.045 ether;
+    uint256 public maxWhiteListMints = 500;
+
 
     bool public publicMintIsOpen  = false;
     bool public whitelistMintIsOpen = true;
     bool public revealed = false;
 
     string _baseTokenURI;
+    string public Author = "Techoshi.eth";
     string public baseExtension = ".json";
     string public hiddenMetadataUri;
 
@@ -38,34 +40,13 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     address private _Duece = 0x0000000000000000000000000000000000000000;
     address private _Vault = 0x0000000000000000000000000000000000000000;
 
-    mapping(address => bool) whitelistedAddresses;
-
-    modifier publicMissingToothCompliance(
-        bool flip,
-        bytes32 hash,
-        bytes memory signature,
-        bytes32 hash2,
-        bytes memory signature2
-    ) {
-        require(publicMintIsOpen, "Kitchen is not open");
-
-        require(
-            matchMessage(
-                flip,
-                flip ? hash : hash2,
-                flip ? signature : signature2
-            ),
-            "Direct mint now allowed"
-        );
-
-        _;
-    }
+    mapping(address => bool) whitelistedAddresses;   
 
     modifier isGuest(address _address, bytes32 _hash) {
         bool decoy = keccak256(abi.encodePacked("<(^_^)>")) !=
             keccak256(
                 abi.encodePacked(
-                    "If you want to help feed the hungry and you can get around the gate go for it. ~Techoshi"
+                    "If you want to help grow this project and you can get around the gate go for it. ~Techoshi"
                 )
             );
 
@@ -85,7 +66,7 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
         bytes32 hash2,
         bytes memory signature2
     ) {
-        require(whitelistMintIsOpen, "WTForks Pre-Sale is not Open");
+        require(whitelistMintIsOpen, "Pre-Sale is not Open");
 
         require(
             matchMessage(
@@ -104,12 +85,13 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
         address _vault,
         string memory __baseTokenURI,
         string memory _hiddenMetadataUri
-    ) ERC721("ToothyTooths", "SOS") {
+    ) ERC721("Missing Tooth NFT", "MTNFT") {
         _Vault = _vault;
         _Uno = firstAddy;
         _Duece = secondAddy;
         _tokenSupply.increment();
-        _safeMint(msg.sender, 0);
+        _tokenSupply.increment();
+        _safeMint(msg.sender, 1);
         _baseTokenURI = __baseTokenURI;
         hiddenMetadataUri = _hiddenMetadataUri;
     }
@@ -134,14 +116,9 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     {
         uint256 supply = _tokenSupply.current();
 
-        require(
-            supply + amount < maxWhiteListMints,
-            "Not enough free mints remaining"
-        );
-        require(
-            whitelistTokenPrice * amount <= msg.value,
-            "Not enough ether sent"
-        );
+        require(supply + amount <= MAX_TOKENS, "Not enough tokens remaining");
+        require(supply + amount <= maxWhiteListMints,"Not enough free mints remaining");
+        require(whitelistTokenPrice * amount <= msg.value,"Not enough ether sent");
         require(amount <= whitelistmTL, "Mint amount too large");
 
         for (uint256 i = 0; i < amount; i++) {
@@ -151,23 +128,15 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     }
 
     function publicMissingToothMint(
-        bool mH,
-        bytes32 mOne,
-        bytes memory mTwo,
-        bytes32 mThree,
-        bytes32 mFour,
-        bytes memory mFive,
         uint256 a
     )
         external
         payable
-        publicMissingToothCompliance(mH, mOne, mTwo, mFour, mFive)
-        isGuest(msg.sender, mThree)
     {
         uint256 supply = _tokenSupply.current();
 
         require(a <= mTL, "Mint amount too large");
-        require(supply + a < MAX_TOKENS, "Not enough tokens remaining");
+        require(supply + a <= MAX_TOKENS, "Not enough tokens remaining");
         require(tokenPrice * a <= msg.value, "Not enough ether sent");
 
         for (uint256 i = 0; i < a; i++) {
@@ -178,7 +147,7 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
 
     function adminMint(address to, uint256 amount) external onlyOwner {
         uint256 supply = _tokenSupply.current();
-        require(supply + amount < MAX_TOKENS, "Not enough tokens remaining");
+        require(supply + amount <= MAX_TOKENS, "Not enough tokens remaining");
         for (uint256 i = 0; i < amount; i++) {
             _tokenSupply.increment();
             _safeMint(to, supply + i);
@@ -205,11 +174,11 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
         mTL = newMintLimit;
     }
 
-    function setWhitelistTransactionMintLimit(uint256 newprivateBanquetLimit)
+    function setWhitelistTransactionMintLimit(uint256 newWhitelistMintLimit)
         external
         onlyOwner
     {
-        whitelistmTL = newprivateBanquetLimit;
+        whitelistmTL = newWhitelistMintLimit;
     }
 
     function setTokenPrice(uint256 newPrice) external onlyOwner {
@@ -230,7 +199,7 @@ contract ToothyTooths is Ownable, ERC721, ERC721URIStorage {
     }
 
     function totalSupply() public view returns (uint256) {
-        return _tokenSupply.current();
+        return _tokenSupply.current() - 1;
     }
 
     function setBaseURI(string memory newBaseURI) external onlyOwner {

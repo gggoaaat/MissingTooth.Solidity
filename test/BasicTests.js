@@ -10,7 +10,7 @@ let messageHash1 = ethers.utils.solidityKeccak256(['string'], [message1]);
 let messageHash2 = ethers.utils.solidityKeccak256(['string'], [message2]);
 
 if (true == true)
-    describe("ToothyTooths", function () {
+    describe("MissingTooth", function () {
         let buyer, owner, hashValue;
         before(async () => {
             const [owner,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20] = await ethers.getSigners();
@@ -19,12 +19,12 @@ if (true == true)
             let ethBalance = ethers.utils.formatEther(await ethers.provider.getBalance(owner.address));
             console.log("Start Balance: " + ethBalance);            
             
-            const WTForks = await ethers.getContractFactory("ToothyTooths");
-            currentToken = await WTForks.deploy('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 
+            const testContract = await ethers.getContractFactory("MissingTooth");
+            currentToken = await testContract.deploy('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 
             '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 
             '0xf5e3D593FC734b267b313240A0FcE8E0edEBD69a',
-            'https://wtforks-general.s3.amazonaws.com/images/',
-            'https://wtforks-general.s3.amazonaws.com/reveal.json');        
+            'https://public-pre-ipfs.s3.amazonaws.com/MissingToothNFT/images/',
+            'https://public-pre-ipfs.s3.amazonaws.com/MissingToothNFT/assets/reveal.json');        
             await currentToken.deployed();
             
             await currentToken.togglePublicMint();
@@ -65,22 +65,15 @@ if (true == true)
         it("Mints a token from Dapp", async function () {
 
             const PurchaseArray = [
-                { amount: 1, value: "0.07" },
-                { amount: 2, value: "0.14" },
-                { amount: 18, value: "7" },
+                { amount: 1, value: "0.045" },
+                { amount: 2, value: "0.09" },
+                { amount: 18, value: "0.81" },
                 // { amount: 5, value: "0.35" },
                 // { amount: 10, value: "0.7" },
                 //{ amount: 100, value: "7" }                
             ];
 
             const [adminWallet, userWallet] = await ethers.getSigners();
-            const timestamp = Date.now();
-
-            let signature1 = await adminWallet.signMessage(ethers.utils.arrayify(messageHash1));
-            let signature2 = await adminWallet.signMessage(ethers.utils.arrayify(messageHash2));
-            console.log("messageHash2: " + messageHash2)
-            console.log("singature2: " + signature2)
-            let messageHash3 = ethers.utils.solidityKeccak256(['string'], [message1]);
 
             //Step 4: Turn on Sales
             const PreMintCount = await currentToken.balanceOf(adminWallet.address)
@@ -90,7 +83,7 @@ if (true == true)
             
             for (let index = 0; index < PurchaseArray.length; index++) {
                 const element = PurchaseArray[index];
-                await currentToken.publicMissingToothMint(true, messageHash1, signature1, messageHash3, messageHash2, signature2, element.amount, { value: ethers.utils.parseEther(element.value) });
+                await currentToken.publicMissingToothMint(element.amount, { value: ethers.utils.parseEther(element.value) });
                 TotalAmount = TotalAmount + element.amount;
             }
            
@@ -117,7 +110,7 @@ if (true == true)
             let messageHash3 = ethers.utils.solidityKeccak256(['string'], [message1]);
             const totalSupply = await currentToken.totalSupply();
             //await currentToken.whitelistMissingToothMint(false, messageHash1, signature1, messageHash2, signature2, 2, { value: ethers.utils.parseEther("0.11") });
-            await currentToken.whitelistMissingToothMint(false, messageHash1, signature1, messageHash3, messageHash2, signature2, 10, { value: ethers.utils.parseEther("0.55") });
+            await currentToken.whitelistMissingToothMint(false, messageHash1, signature1, messageHash3, messageHash2, signature2, 10, { value: ethers.utils.parseEther("0.45") });
             const totalSupply2 = await currentToken.totalSupply();
             expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
         });
@@ -125,7 +118,7 @@ if (true == true)
         it("Will not allow mint over threshold", async function () {
 
             const PurchaseArray = [
-                { amount: 101, value: "7.07" }                
+                { amount: 101, value: "4.545" }                
             ];
 
             const [adminWallet, userWallet] = await ethers.getSigners();
@@ -141,7 +134,7 @@ if (true == true)
             
             for (let index = 0; index < PurchaseArray.length; index++) {
                 const element = PurchaseArray[index];
-                await expect(currentToken.publicMissingToothMint(false, messageHash1, signature1, messageHash3, messageHash2, signature2, element.amount, { value: ethers.utils.parseEther(element.value) })).to.be.revertedWith('Mint amount too large');
+                await expect(currentToken.publicMissingToothMint(element.amount, { value: ethers.utils.parseEther(element.value) })).to.be.revertedWith('Mint amount too large');
                 TotalAmount = TotalAmount + element.amount;
             }
            
@@ -179,9 +172,9 @@ if (true == true)
         it("Mints free token", async function () {
 
             const PurchaseArray = [
-                { amount: 1, value: "0.07" },
-                { amount: 2, value: "0.14" },
-                { amount: 100, value: "7" },
+                { amount: 1, value: "0" },
+                { amount: 2, value: "0" },
+                { amount: 100, value: "0" },
                 // { amount: 5, value: "0.35" },
                 // { amount: 10, value: "0.7" },
                 //{ amount: 100, value: "7" }                
@@ -253,4 +246,10 @@ if (true == true)
             contractEthBalance = ethers.utils.formatEther(await ethers.provider.getBalance(currentToken.address));
             console.log("Contract Balance: " + contractEthBalance);        
         }); 
+
+        it("Transfer Owner", async function () {           
+            const [owner,_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20] = await ethers.getSigners();
+            
+            await currentToken.transferOwnership(_1.address);                      
+        });
     })

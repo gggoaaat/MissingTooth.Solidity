@@ -49,18 +49,18 @@ module.exports = {
   //defaultNetwork: "hardhat",
 
 
-
-  defaultNetwork: "rinkeby",
-  etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
-  },
-  networks: {
-    hardhat: { chainId: 4 },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${PROJECT_ID}`,
-      accounts: [`0x${PK}`],
-    }
-  }
+  
+  // defaultNetwork: "rinkeby",
+  // etherscan: {
+  //   apiKey: ETHERSCAN_API_KEY,
+  // },
+  // networks: {
+  //   hardhat: { chainId: 4 },
+  //   rinkeby: {
+  //     url: `https://rinkeby.infura.io/v3/${PROJECT_ID}`,
+  //     accounts: [`0x${PK}`],
+  //   }
+  // }
 
 
   // defaultNetwork: "mainnet",
